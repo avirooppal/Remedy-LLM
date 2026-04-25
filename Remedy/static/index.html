@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Remedy AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7fbfa;
+            --chat-bg: rgba(255, 255, 255, 0.7);
+            --primary: #2d6a4f;
+            --primary-light: #40916c;
+            --text-dark: #1b4332;
+            --text-light: #52796f;
+            --user-msg: #d8f3dc;
+            --bot-msg: #ffffff;
+            --border: rgba(45, 106, 79, 0.1);
+            --shadow: 0 8px 32px rgba(45, 106, 79, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #e9f5f2 0%, #f7fbfa 100%);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Ambient background blobs */
+        .blob-1, .blob-2 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.5;
+        }
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #b7e4c7;
+            top: -100px;
+            left: -100px;
+        }
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            background: #d8f3dc;
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 480px;
+            height: 85vh;
+            background: var(--chat-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+        }
+
+        .header-text h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .header-text p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 300;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(45, 106, 79, 0.2);
+            border-radius: 10px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-out;
+            word-wrap: break-word;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot {
+            background: var(--bot-msg);
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+
+        .message.user {
+            background: var(--user-msg);
+            color: var(--text-dark);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #7a9c92;
+            margin-top: 8px;
+            display: block;
+            border-top: 1px dashed rgba(45, 106, 79, 0.2);
+            padding-top: 8px;
+        }
+
+        .input-area {
+            padding: 16px 24px;
+            background: transparent;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        #symptomInput {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid rgba(45, 106, 79, 0.2);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        #symptomInput:focus {
+            border-color: var(--primary-light);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1);
+        }
+
+        #symptomInput::placeholder {
+            color: #a4babb;
+        }
+
+        #sendBtn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        #sendBtn:hover {
+            background: var(--primary-light);
+            transform: scale(1.05);
+        }
+
+        #sendBtn:active {
+            transform: scale(0.95);
+        }
+
+        #sendBtn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transform: translateX(1px); /* visual centering */
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            align-items: center;
+            height: 42px;
+            width: 60px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="logo-icon">🌿</div>
+            <div class="header-text">
+                <h1>Remedy AI</h1>
+                <p>Traditional Indian Home Remedies</p>
+            </div>
+        </div>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="message bot">
+                Namaste! 🙏 Tell me about your symptom or health issue, and I'll suggest a traditional home remedy.
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="symptomInput" placeholder="E.g., I have a headache..." autocomplete="off">
+            </div>
+            <button id="sendBtn">
+                <svg viewBox="0 0 24 24">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const symptomInput = document.getElementById('symptomInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            
+            if(sender === 'bot') {
+                // If it contains the disclaimer, style it differently
+                if (text.includes("⚠️")) {
+                    const parts = text.split("⚠️");
+                    msgDiv.innerHTML = parts[0].trim() + `<span class="disclaimer">⚠️ ${parts[1].trim()}</span>`;
+                } else {
+                    msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+                }
+            } else {
+                msgDiv.textContent = text;
+            }
+            
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const text = symptomInput.value.trim();
+            if (!text) return;
+
+            // Add user message
+            appendMessage(text, 'user');
+            symptomInput.value = '';
+            
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptom: text })
+                });
+                
+                const data = await response.json();
+                removeTypingIndicator();
+                appendMessage(data.response, 'bot');
+            } catch (error) {
+                console.error("Error calling API:", error);
+                removeTypingIndicator();
+                appendMessage("Sorry, I'm having trouble connecting right now. Please try again later.", 'bot');
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        symptomInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

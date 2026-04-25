@@ -1,0 +1,44 @@
+# Model outputs (can be very large)
+outputs/
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Environment & Dependencies
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+venv/
+.venv/
+env/
+ENV/
+uv.lock
+
+# Data
+data/raw/
+# Uncomment below to ignore all data
+# data/
+
+# Logs & Metrics
+wandb/
+*.log
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

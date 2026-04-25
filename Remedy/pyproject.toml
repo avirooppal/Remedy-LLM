@@ -1,0 +1,32 @@
+[project]
+name = "india-home-remedies-slm"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "Fine-tuned SLM for Indian home remedies"
+authors = [{ name = "Your Name" }]
+
+[project.dependencies]
+torch = ">=2.0.0"
+transformers = "==4.40.0"
+datasets = ">=2.14.0"
+peft = ">=0.10.0"
+trl = ">=0.8.0"
+bitsandbytes = ">=0.43.0"
+accelerate = ">=0.28.0"
+scipy = ">=1.11.0"
+sentencepiece = ">=0.2.0"
+wandb = ">=0.16.0"
+gradio = ">=4.0.0"
+fastapi = ">=0.110.0"
+uvicorn = ">=0.29.0"
+python-dotenv = ">=1.0.0"
+evaluate = ">=0.4.0"
+rouge-score = ">=0.1.2"
+nltk = ">=3.8.0"
+
+[tool.uv]
+dev-dependencies = ["jupyter", "ipykernel"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
